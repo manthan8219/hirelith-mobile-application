@@ -369,3 +369,30 @@ export function fetchEnterpriseCompanies(params?: {
   if (params?.page) p.set('page', String(params.page));
   return api.get<ScrapedCompany[]>(`/api/companies/enterprise?${p.toString()}`);
 }
+
+// ── Email Credentials ──────────────────────────────────────────────────────────
+
+export interface EmailCredentials {
+  gmailAddress: string | null;
+  isVerified: boolean;
+}
+
+export function getEmailCredentials(userId: string): Promise<EmailCredentials> {
+  return api.get<EmailCredentials>(`/api/email/credentials/${userId}`);
+}
+
+export function saveAndVerifyEmailCredentials(
+  userId: string,
+  gmailAddress: string,
+  appPassword: string,
+): Promise<{ valid: boolean; error?: string }> {
+  return api.post<{ valid: boolean; error?: string }>('/api/email/credentials/verify', {
+    userId,
+    gmailAddress,
+    appPassword,
+  });
+}
+
+export function deleteEmailCredentials(userId: string): Promise<{ success: boolean }> {
+  return api.delete<{ success: boolean }>(`/api/email/credentials/${userId}`);
+}

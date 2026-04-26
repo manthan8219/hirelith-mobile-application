@@ -10,11 +10,12 @@ import {
   Dimensions,
   Alert,
   Linking,
+  TextInput,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { api } from '../../services/api';
+import { api, getEmailCredentials, saveAndVerifyEmailCredentials, deleteEmailCredentials } from '../../services/api';
 import type { ParsedResume } from '../../types/resume';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../types';
@@ -278,6 +279,15 @@ export default function ProfileScreen() {
   const [resumeProfile, setResumeProfile] = useState<ResumeProfileData | null>(null);
   const [readinessScore, setReadinessScore] = useState<number | null>(null);
 
+  // ── Email Credentials state ───────────────────────────────────────────────
+  const [emailCreds, setEmailCreds] = useState<{ gmailAddress: string | null; isVerified: boolean } | null>(null);
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailCredsLoading, setEmailCredsLoading] = useState(false);
+  const [emailCredsError, setEmailCredsError] = useState<string | null>(null);
+  const [emailCredsSaving, setEmailCredsSaving] = useState(false);
+
   useEffect(() => {
     if (!backendUser?.id) return;
     api.get<ResumeProfileData>(`/api/v1/resume/profile?userId=${backendUser.id}`)
@@ -286,6 +296,12 @@ export default function ProfileScreen() {
     api.get<{ readinessScore: number }>(`/api/v1/career-analysis/${backendUser.id}/latest`)
       .then(data => setReadinessScore(data.readinessScore))
       .catch(() => { /* no analysis yet — keep null */ });
+    getEmailCredentials(backendUser.id)
+      .then(creds => {
+        setEmailCreds(creds);
+        if (creds.gmailAddress) setEmailInput(creds.gmailAddress);
+      })
+      .catch(() => setEmailCreds({ gmailAddress: null, isVerified: false }));
   }, [backendUser?.id]);
 
   const parsed = resumeProfile?.parsedResume ?? null;
@@ -368,6 +384,62 @@ export default function ProfileScreen() {
     } finally {
       setPdfLoading(false);
     }
+  }
+
+  async function handleSaveEmailCreds() {
+    if (!backendUser?.id || !emailInput || passwordInput.replace(/\s/g, '').length !== 16) return;
+    setEmailCredsSaving(true);
+    setEmailCredsError(null);
+    try {
+      const result = await saveAndVerifyEmailCredentials(
+        backendUser.id,
+        emailInput.trim(),
+        passwordInput.replace(/\s/g, ''),
+      );
+      if (result.valid) {
+        setEmailCreds({ gmailAddress: emailInput.trim(), isVerified: true });
+        setPasswordInput('');
+      } else {
+        setEmailCredsError(result.error ?? 'Verification failed. Check your credentials.');
+      }
+    } catch {
+      setEmailCredsError('Could not connect to server. Try again.');
+    } finally {
+      setEmailCredsSaving(false);
+    }
+  }
+
+  async function handleDeleteEmailCreds() {
+    if (!backendUser?.id) return;
+    Alert.alert('Remove Email Credentials', 'Are you sure you want to remove your saved email credentials?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          setEmailCredsLoading(true);
+          try {
+            await deleteEmailCredentials(backendUser.id);
+            setEmailCreds({ gmailAddress: null, isVerified: false });
+            setEmailInput('');
+            setPasswordInput('');
+            setEmailCredsError(null);
+          } catch {
+            Alert.alert('Error', 'Could not remove credentials. Try again.');
+          } finally {
+            setEmailCredsLoading(false);
+          }
+        },
+      },
+    ]);
+  }
+
+  function handleShowEmailHelp() {
+    Alert.alert(
+      'How to get a Google App Password',
+      '1. Go to myaccount.google.com\n2. Security → 2-Step Verification (must be ON)\n3. Scroll down → App passwords\n4. Select app: Mail, device: Other\n5. Copy the 16-character password shown\n6. Paste it here (no spaces needed)',
+      [{ text: 'Got it' }],
+    );
   }
 
   return (
@@ -500,6 +572,159 @@ export default function ProfileScreen() {
               </View>
             ))}
           </View>
+        </View>
+
+        {/* ── Email Sender ──────────────────────────────────────── */}
+        <View style={styles.card}>
+          {/* Card header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <MaterialIcons name="mail-outline" size={20} color="#818CF8" />
+              <Text style={styles.cardTitle}>Email Sender</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {/* Status chip */}
+              <View style={{
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderRadius: 20,
+                backgroundColor: emailCreds?.isVerified ? 'rgba(34,197,94,0.12)' : 'rgba(100,116,139,0.12)',
+                borderWidth: 1,
+                borderColor: emailCreds?.isVerified ? 'rgba(34,197,94,0.3)' : 'rgba(100,116,139,0.2)',
+              }}>
+                <Text style={{
+                  fontSize: 11,
+                  fontWeight: '600',
+                  color: emailCreds?.isVerified ? '#22C55E' : 'rgba(148,163,184,0.7)',
+                }}>
+                  {emailCreds?.isVerified ? 'Verified ✓' : 'Not configured'}
+                </Text>
+              </View>
+              {/* Info button */}
+              <Pressable onPress={handleShowEmailHelp} hitSlop={8}>
+                <MaterialIcons name="info-outline" size={18} color="rgba(148,163,184,0.5)" />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Gmail address input */}
+          <View style={{ marginBottom: 10 }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: 'rgba(148,163,184,0.6)', marginBottom: 6, letterSpacing: 0.5 }}>
+              GMAIL ADDRESS
+            </Text>
+            <TextInput
+              value={emailInput}
+              onChangeText={setEmailInput}
+              placeholder="you@gmail.com"
+              placeholderTextColor="rgba(100,116,139,0.5)"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.04)',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.08)',
+                borderRadius: 10,
+                paddingHorizontal: 14,
+                paddingVertical: 11,
+                color: 'rgba(226,232,240,0.9)',
+                fontSize: 14,
+              }}
+            />
+          </View>
+
+          {/* App password input */}
+          <View style={{ marginBottom: 14 }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: 'rgba(148,163,184,0.6)', marginBottom: 6, letterSpacing: 0.5 }}>
+              APP PASSWORD (16 characters)
+            </Text>
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: 'rgba(255,255,255,0.04)',
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.08)',
+              borderRadius: 10,
+            }}>
+              <TextInput
+                value={passwordInput}
+                onChangeText={setPasswordInput}
+                placeholder="xxxx xxxx xxxx xxxx"
+                placeholderTextColor="rgba(100,116,139,0.5)"
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={{
+                  flex: 1,
+                  paddingHorizontal: 14,
+                  paddingVertical: 11,
+                  color: 'rgba(226,232,240,0.9)',
+                  fontSize: 14,
+                }}
+              />
+              <Pressable onPress={() => setShowPassword(v => !v)} style={{ paddingHorizontal: 12 }} hitSlop={8}>
+                <MaterialIcons
+                  name={showPassword ? 'visibility-off' : 'visibility'}
+                  size={18}
+                  color="rgba(148,163,184,0.5)"
+                />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Error message */}
+          {!!emailCredsError && (
+            <View style={{
+              backgroundColor: 'rgba(239,68,68,0.08)',
+              borderWidth: 1,
+              borderColor: 'rgba(239,68,68,0.2)',
+              borderRadius: 8,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              marginBottom: 12,
+            }}>
+              <Text style={{ color: '#F87171', fontSize: 12, lineHeight: 17 }}>{emailCredsError}</Text>
+            </View>
+          )}
+
+          {/* Save & Verify button */}
+          <Pressable
+            onPress={handleSaveEmailCreds}
+            disabled={emailCredsSaving || !emailInput || passwordInput.replace(/\s/g, '').length !== 16}
+            style={({ pressed }) => ({
+              backgroundColor: pressed ? 'rgba(99,102,241,0.7)' : 'rgba(99,102,241,0.85)',
+              borderRadius: 10,
+              paddingVertical: 12,
+              alignItems: 'center',
+              opacity: (emailCredsSaving || !emailInput || passwordInput.replace(/\s/g, '').length !== 16) ? 0.45 : 1,
+              marginBottom: emailCreds?.gmailAddress ? 10 : 0,
+            })}
+          >
+            <Text style={{ color: 'white', fontSize: 14, fontWeight: '600' }}>
+              {emailCredsSaving ? 'Verifying…' : 'Save & Verify'}
+            </Text>
+          </Pressable>
+
+          {/* Remove button — shown only when credentials exist */}
+          {!!emailCreds?.gmailAddress && (
+            <Pressable
+              onPress={handleDeleteEmailCreds}
+              disabled={emailCredsLoading}
+              style={({ pressed }) => ({
+                backgroundColor: pressed ? 'rgba(239,68,68,0.12)' : 'transparent',
+                borderWidth: 1,
+                borderColor: 'rgba(239,68,68,0.25)',
+                borderRadius: 10,
+                paddingVertical: 10,
+                alignItems: 'center',
+                opacity: emailCredsLoading ? 0.5 : 1,
+              })}
+            >
+              <Text style={{ color: '#F87171', fontSize: 13, fontWeight: '500' }}>
+                {emailCredsLoading ? 'Removing…' : 'Remove'}
+              </Text>
+            </Pressable>
+          )}
         </View>
 
         {/* ── Learning Growth ───────────────────────────────────── */}
