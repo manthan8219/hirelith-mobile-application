@@ -234,7 +234,7 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     if (!backendUser?.id) return;
-    api.get<CareerAnalysis>(`/api/v1/career-analysis/${backendUser.id}`)
+    api.get<CareerAnalysis>(`/api/v1/career-analysis/${backendUser.id}/latest`)
       .then(setCareerAnalysis)
       .catch(() => { /* silent — keep defaults */ });
   }, [backendUser?.id]);
@@ -327,7 +327,7 @@ export default function DashboardScreen() {
     Animated.spring(practiceBtnScale, { toValue: 1, useNativeDriver: true, tension: 300, friction: 8 }).start();
   }, []);
 
-  const readinessScore = careerAnalysis?.readinessScore ?? 82;
+  const readinessScore = careerAnalysis?.readinessScore ?? 0;
 
   const dynamicSuggestions = careerAnalysis
     ? [

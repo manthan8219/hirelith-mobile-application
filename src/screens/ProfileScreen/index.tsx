@@ -454,11 +454,7 @@ export default function ProfileScreen() {
           {/* Job readiness score */}
           <View style={styles.scoreSection}>
             <Text style={styles.scoreSectionLabel}>Job Readiness Score</Text>
-            {readinessScore !== null ? (
-              <CircularScore score={readinessScore} />
-            ) : (
-              <CircularScore score={0} />
-            )}
+            <CircularScore score={readinessScore ?? 0} />
             <Text style={styles.scoreSub}>
               {readinessScore !== null
                 ? readinessScore >= 80
