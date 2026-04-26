@@ -1,0 +1,547 @@
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
+
+export const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#0B0F1A',
+  },
+
+  orb1: {
+    position: 'absolute',
+    top: -80,
+    right: -60,
+    width: width * 0.7,
+    height: width * 0.7,
+    borderRadius: width * 0.35,
+    backgroundColor: '#7C3AED',
+  },
+  orb2: {
+    position: 'absolute',
+    bottom: -60,
+    left: -80,
+    width: width * 0.6,
+    height: width * 0.6,
+    borderRadius: width * 0.3,
+    backgroundColor: '#0E7490',
+  },
+
+  // ── Header ────────────────────────────────────────────────────────────────
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(17,24,39,0.88)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#5E35B1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  headerAvatarText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: 'white',
+  },
+  headerBrand: {
+    fontSize: 19,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+    color: '#A855F7',
+  },
+  headerBrandAccent: {
+    color: '#22D3EE',
+  },
+  headerSettingsBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  notifDot: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F87171',
+  },
+
+  // ── Scroll ────────────────────────────────────────────────────────────────
+  scrollView: {
+    flex: 1,
+  },
+  scroll: {
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 16,
+  },
+
+  // ── Tab switcher ──────────────────────────────────────────────────────────
+  tabSwitcherWrap: {
+    backgroundColor: 'rgba(29,27,32,0.9)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    padding: 4,
+    flexDirection: 'row',
+    marginBottom: 24,
+    position: 'relative',
+  },
+  tabSlider: {
+    position: 'absolute',
+    top: 4,
+    bottom: 4,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 9,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  tabBtnText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: 'rgba(100,116,139,0.7)',
+  },
+  tabBtnTextActive: {
+    color: '#22D3EE',
+  },
+
+  // ── Daily Challenge card ───────────────────────────────────────────────────
+  dailyCard: {
+    backgroundColor: 'rgba(17,24,39,0.85)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    padding: 22,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  dailyGlow: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: 'rgba(168,85,247,0.1)',
+  },
+  dailyMissionLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#A855F7',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  dailyTitlePurple: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#A855F7',
+    letterSpacing: -0.6,
+    lineHeight: 32,
+  },
+  dailyTitleCyan: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#22D3EE',
+    letterSpacing: -0.6,
+    lineHeight: 32,
+  },
+  dailyDesc: {
+    fontSize: 13,
+    color: 'rgba(148,163,184,0.8)',
+    lineHeight: 20,
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  dailyMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 18,
+  },
+  dailyXpRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  dailyXpText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#22D3EE',
+  },
+  dailyTimerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  dailyTimerText: {
+    fontSize: 13,
+    color: 'rgba(148,163,184,0.7)',
+    fontWeight: '500',
+  },
+  startNowBtn: {
+    borderRadius: 14,
+    overflow: 'hidden',
+    shadowColor: '#A855F7',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  startNowBtnInner: {
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  startNowBtnText: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: 'white',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+
+  // ── Category filter ────────────────────────────────────────────────────────
+  categoryScroll: {
+    marginBottom: 16,
+  },
+  categoryScrollContent: {
+    paddingRight: 16,
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: 'rgba(17,24,39,0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  categoryChipActive: {
+    backgroundColor: 'rgba(34,211,238,0.1)',
+    borderColor: 'rgba(34,211,238,0.3)',
+  },
+  categoryChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: 'rgba(148,163,184,0.7)',
+    whiteSpace: 'nowrap' as any,
+  },
+  categoryChipTextActive: {
+    color: '#22D3EE',
+  },
+
+  // ── Challenge card ─────────────────────────────────────────────────────────
+  challengeCard: {
+    backgroundColor: 'rgba(17,24,39,0.85)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    padding: 18,
+    marginBottom: 12,
+  },
+  challengeCardTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginBottom: 14,
+  },
+  challengeCardLeft: {
+    flex: 1,
+    minWidth: 0,
+  },
+  challengeTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: 'white',
+    letterSpacing: -0.2,
+    marginBottom: 6,
+  },
+  challengeBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  difficultyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  difficultyText: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  statusDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: 'rgba(100,116,139,0.5)',
+  },
+  statusText: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  challengeXp: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: 'white',
+    letterSpacing: -0.3,
+    flexShrink: 0,
+  },
+  challengeXpLabel: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: 'rgba(100,116,139,0.6)',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    textAlign: 'right',
+    marginTop: 1,
+  },
+
+  // Card action row
+  challengeActions: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  hintBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  hintBtnActive: {
+    backgroundColor: 'rgba(34,211,238,0.08)',
+    borderColor: 'rgba(34,211,238,0.25)',
+  },
+  hintBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: 'rgba(226,232,240,0.75)',
+  },
+  hintBtnTextActive: {
+    color: '#22D3EE',
+  },
+  arrowBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(34,211,238,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(34,211,238,0.2)',
+    flexShrink: 0,
+  },
+  startBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(168,85,247,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(168,85,247,0.25)',
+  },
+  startBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A855F7',
+  },
+
+  // ── Hint panel ─────────────────────────────────────────────────────────────
+  hintPanel: {
+    overflow: 'hidden',
+  },
+  hintPanelInner: {
+    backgroundColor: 'rgba(8,36,45,0.85)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(34,211,238,0.2)',
+    padding: 16,
+    marginTop: 10,
+  },
+  hintPanelHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  hintPanelHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  hintIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: 'rgba(34,211,238,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hintPanelTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: 'white',
+  },
+  hintCloseBtn: {
+    padding: 4,
+  },
+  hintText: {
+    fontSize: 13,
+    color: 'rgba(207,236,240,0.75)',
+    lineHeight: 20,
+    fontStyle: 'italic',
+    marginBottom: 12,
+  },
+  hintProgressTrack: {
+    height: 3,
+    backgroundColor: 'rgba(34,211,238,0.1)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  hintProgressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+
+  // ── Empty state ────────────────────────────────────────────────────────────
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+  },
+  emptyIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: 'white',
+    marginBottom: 6,
+  },
+  emptyText: {
+    fontSize: 13,
+    color: 'rgba(100,116,139,0.7)',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+
+  // ── AI Copilot bar ────────────────────────────────────────────────────────
+  copilotBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: 'rgba(17,24,39,0.92)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(168,85,247,0.2)',
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  copilotIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    overflow: 'hidden',
+  },
+  copilotTextWrap: {
+    flex: 1,
+    minWidth: 0,
+  },
+  copilotLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#A855F7',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    marginBottom: 2,
+  },
+  copilotSub: {
+    fontSize: 12,
+    color: 'rgba(100,116,139,0.8)',
+  },
+
+  // ── Spinner ───────────────────────────────────────────────────────────────
+  spinnerRing: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2.5,
+    borderColor: 'rgba(255,255,255,0.2)',
+    borderTopColor: 'white',
+    flexShrink: 0,
+  },
+  spinnerRingCyan: {
+    borderColor: 'rgba(34,211,238,0.2)',
+    borderTopColor: '#22D3EE',
+  },
+});
