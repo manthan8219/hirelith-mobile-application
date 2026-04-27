@@ -34,7 +34,7 @@ import { BottomNavBar } from '../../components/BottomNavBar';
 import { styles } from './MarketplaceScreen.styles';
 import {
   api,
-  fetchLiveJobs,
+  fetchJobs,
   fetchStartups,
   fetchMidSizeCompanies,
   fetchEnterpriseCompanies,
@@ -50,8 +50,8 @@ const { height } = Dimensions.get('window');
 
 // Jobs displayed per "page" in the infinite scroll
 const DISPLAY_CHUNK = 15;
-// Per-source scrape limit sent to backend
-const SCRAPE_LIMIT = 50;
+// How many jobs to fetch from DB per request
+const FETCH_LIMIT = 100;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function stripHtml(html: string): string {
@@ -937,13 +937,12 @@ function JobsTab({
   const [expIdx, setExpIdx] = useState(0);
   const EXP = ['All Levels', 'Junior', 'Mid-Level', 'Senior'];
 
-  // All jobs fetched from backend (can be 100–500+)
+  // All jobs fetched from backend (can be 100+)
   const [allJobs, setAllJobs] = useState<ApiJob[]>([]);
   // How many to actually show (grows with scroll)
   const [displayCount, setDisplayCount] = useState(DISPLAY_CHUNK);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [sourceMeta, setSourceMeta] = useState<Record<string, { count: number; success: boolean }>>({});
 
   const filterOp = useRef(new Animated.Value(0)).current;
   const filterY = useRef(new Animated.Value(12)).current;
@@ -983,9 +982,8 @@ function JobsTab({
     setAllJobs([]);
     setDisplayCount(DISPLAY_CHUNK);
     try {
-      const res = await fetchLiveJobs({ limit: SCRAPE_LIMIT });
-      setAllJobs(res.jobs ?? []);
-      setSourceMeta(res.meta?.sources ?? {});
+      const res = await fetchJobs({ limit: FETCH_LIMIT });
+      setAllJobs(res.data ?? []);
     } catch {
       setError(true);
     } finally {
@@ -1001,23 +999,18 @@ function JobsTab({
     loadJobs();
   }, []);
 
-  const successfulSources = useMemo(
-    () => Object.entries(sourceMeta).filter(([, v]) => v.success && v.count > 0),
-    [sourceMeta]
-  );
-
   return (
     <>
       {/* Hero */}
       <View style={styles.heroSection}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.heroTitle}>Live Jobs</Text>
+          <Text style={styles.heroTitle}>Jobs</Text>
           <Text style={styles.heroSub}>
             {loading
-              ? 'Scraping job boards...'
+              ? 'Loading jobs...'
               : allJobs.length > 0
-              ? `${allJobs.length} jobs from ${successfulSources.length} sources`
-              : 'Real-time jobs from across the web'}
+              ? `${allJobs.length} jobs available`
+              : 'Jobs from across the web'}
           </Text>
         </View>
         {allJobs.length > 0 && (
@@ -1027,26 +1020,6 @@ function JobsTab({
           </View>
         )}
       </View>
-
-      {/* Source chips */}
-      {!loading && successfulSources.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.sourceChipsRow}
-        >
-          {successfulSources.map(([source, meta]) => {
-            const color = SOURCE_COLORS[source] ?? '#6366F1';
-            return (
-              <View key={source} style={[styles.sourceChip, { borderColor: `${color}40`, backgroundColor: `${color}12` }]}>
-                <View style={[styles.sourceChipDot, { backgroundColor: color }]} />
-                <Text style={[styles.sourceChipText, { color }]}>{source}</Text>
-                <Text style={styles.sourceChipCount}>{meta.count}</Text>
-              </View>
-            );
-          })}
-        </ScrollView>
-      )}
 
       {/* Filters */}
       <Animated.View style={[styles.filterBar, { opacity: filterOp, transform: [{ translateY: filterY }] }]}>

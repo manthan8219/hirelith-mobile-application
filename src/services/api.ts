@@ -170,7 +170,6 @@ export interface ApiJobSalary {
   raw?: string;
 }
 
-// Matches the ScrapedJob interface from job-scraper module exactly
 export interface ApiJob {
   id: string;
   source: string;
@@ -185,6 +184,7 @@ export interface ApiJob {
   tags: string[];
   description: string;
   url: string;
+  applyUrl?: string;
   salary?: ApiJobSalary;
   postedAt?: string;
   expiresAt?: string;
@@ -202,31 +202,68 @@ export interface PaginatedJobsResponse {
   };
 }
 
+export interface JobsQueryParams {
+  page?: number;
+  limit?: number;
+  remote?: boolean;
+  location?: string;
+  jobType?: string;
+  category?: string;
+  source?: string;
+}
+
+/** Browse jobs from DB with optional filters */
+export function fetchJobs(params?: JobsQueryParams): Promise<PaginatedJobsResponse> {
+  const p = new URLSearchParams();
+  if (params?.page)     p.set('page',     String(params.page));
+  if (params?.limit)    p.set('limit',    String(params.limit));
+  if (params?.remote !== undefined) p.set('remote', String(params.remote));
+  if (params?.location) p.set('location', params.location);
+  if (params?.jobType)  p.set('jobType',  params.jobType);
+  if (params?.category) p.set('category', params.category);
+  if (params?.source)   p.set('source',   params.source);
+  return api.get<PaginatedJobsResponse>(`/api/v1/jobs?${p.toString()}`);
+}
+
+/** Full-text keyword search across job title, description, skills */
+export function searchJobs(
+  keyword: string,
+  params?: JobsQueryParams,
+): Promise<PaginatedJobsResponse> {
+  const p = new URLSearchParams({ keyword });
+  if (params?.page)     p.set('page',     String(params.page));
+  if (params?.limit)    p.set('limit',    String(params.limit));
+  if (params?.remote !== undefined) p.set('remote', String(params.remote));
+  if (params?.location) p.set('location', params.location);
+  if (params?.jobType)  p.set('jobType',  params.jobType);
+  if (params?.category) p.set('category', params.category);
+  if (params?.source)   p.set('source',   params.source);
+  return api.get<PaginatedJobsResponse>(`/api/v1/jobs/search?${p.toString()}`);
+}
+
+/**
+ * Personalised job feed for a user — returns jobs matching their saved
+ * scrape profiles (populated after resume parsing by the Python agent).
+ */
+export function fetchJobFeed(
+  userId: string,
+  params?: JobsQueryParams,
+): Promise<PaginatedJobsResponse> {
+  const p = new URLSearchParams();
+  if (params?.page)     p.set('page',     String(params.page));
+  if (params?.limit)    p.set('limit',    String(params.limit));
+  if (params?.remote !== undefined) p.set('remote', String(params.remote));
+  if (params?.category) p.set('category', params.category);
+  return api.get<PaginatedJobsResponse>(`/api/v1/jobs/feed/${userId}?${p.toString()}`);
+}
+
+// fetchLiveJobs — kept for internal/debug use only (calls raw scraper, not DB)
 export interface LiveJobsMeta {
   total: number;
   sources: Record<string, { count: number; success: boolean; error?: string }>;
   durationMs: number;
 }
 
-// fetchJobs hits the DB-backed endpoint (empty until scrapers populate it)
-export function fetchJobs(params?: {
-  page?: number;
-  limit?: number;
-  remote?: boolean;
-  location?: string;
-  jobType?: string;
-}): Promise<PaginatedJobsResponse> {
-  const p = new URLSearchParams();
-  if (params?.page) p.set('page', String(params.page));
-  if (params?.limit) p.set('limit', String(params.limit));
-  if (params?.remote !== undefined) p.set('remote', String(params.remote));
-  if (params?.location) p.set('location', params.location);
-  if (params?.jobType) p.set('jobType', params.jobType);
-  return api.get<PaginatedJobsResponse>(`/api/v1/jobs?${p.toString()}`);
-}
-
-// fetchLiveJobs — scrapes all job sources in parallel, returns fresh jobs
-// limit = per-source limit (e.g. limit=50 → up to 50 per scraper)
 export interface LiveJobsResponse {
   jobs: ApiJob[];
   meta: LiveJobsMeta;
@@ -239,21 +276,11 @@ export function fetchLiveJobs(params?: {
   limit?: number;
 }): Promise<LiveJobsResponse> {
   const p = new URLSearchParams();
-  if (params?.keyword) p.set('keyword', params.keyword);
+  if (params?.keyword)  p.set('keyword',  params.keyword);
   if (params?.location) p.set('location', params.location);
   if (params?.category) p.set('category', params.category);
-  if (params?.limit) p.set('limit', String(params.limit));
+  if (params?.limit)    p.set('limit',    String(params.limit));
   return api.get<LiveJobsResponse>(`/api/job-scraper/scrape?${p.toString()}`);
-}
-
-export function searchJobs(
-  keyword: string,
-  params?: { page?: number; limit?: number },
-): Promise<PaginatedJobsResponse> {
-  const p = new URLSearchParams({ keyword });
-  if (params?.page) p.set('page', String(params.page));
-  if (params?.limit) p.set('limit', String(params.limit));
-  return api.get<PaginatedJobsResponse>(`/api/v1/jobs/search?${p.toString()}`);
 }
 
 // ── Cold Email ────────────────────────────────────────────────────────────────
